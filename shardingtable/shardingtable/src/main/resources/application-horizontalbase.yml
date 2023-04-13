@@ -1,0 +1,46 @@
+server:
+  port: 8080
+  main:
+    allow-circular-references: true
+spring:
+  shardingsphere:
+    datasource:
+      names: db0,db1
+      db0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.2.109:3306/bitchpeng0?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: root
+        password: Pj0556-7512525
+      db1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.2.115:3306/bitchpeng1?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: root
+        password: Pj0556-7512525
+    rules:
+      sharding:
+        key-generators: # 分布式主键
+          alg-snowflake:  # 222 自定义主键名称
+            type: SNOWFLAKE  # 分布式序列-算法类型
+        sharding-algorithms:
+          table-inline: # 分库算法
+            type: INLINE # 分片算法类型: 行表达式分片算法(标准分片算法下包含->行表达式分片算法)
+            props:
+              algorithm-expression: db$->{user_id % 2} # 分片算法属性配置
+        tables:
+          # 水平分库
+          t_course: # 逻辑表名称
+            actual-data-nodes: db$->{0..1}.t_course_0 # 数据节点
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: table-inline
+            key-generate-strategy:
+              column: cid
+              key-generator-name: alg-snowflake
+
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

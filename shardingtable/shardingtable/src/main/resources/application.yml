@@ -1,0 +1,8 @@
+server:
+  port: 8080
+  main:
+    allow-circular-references: true
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
